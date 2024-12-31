@@ -1,13 +1,13 @@
 require('dotenv').config();
-const Koa = require('koa');
-const Router = require('koa-router');
-const bodyParser = require('koa-bodyparser');
-const cors = require('@koa/cors');
-const Stripe = require('stripe');
-const { createClient } = require('@supabase/supabase-js');
+const Koa = require('koa');//Koa 是一个轻量级的 Node.js 框架，用于构建 Web 应用程序
+const Router = require('koa-router');//koa-router 是一个用于处理路由的 Koa 中间件
+const bodyParser = require('koa-bodyparser');//koa-bodyparser 是一个用于解析请求体的 Koa 中间件
+const cors = require('@koa/cors');//@koa/cors 是一个用于处理跨域请求的 Koa 中间件
+const Stripe = require('stripe');//stripe 是一个用于处理 Stripe API 的库
+const { createClient } = require('@supabase/supabase-js');//@supabase/supabase-js 是一个用于处理 Supabase 的库
 
-const app = new Koa();
-const router = new Router();
+const app = new Koa();//创建一个新的 Koa 应用
+const router = new Router();//创建一个新的 Router 实例
 
 // 添加 CORS 中间件
 app.use(cors({
@@ -196,8 +196,9 @@ router.post('/create-subscription', async (ctx) => {
       code: 200,
       message: 'success',
       data: {
-        subscriptionId: subscription.id,
-        clientSecret: subscription.latest_invoice.payment_intent.client_secret,
+        customerId: customer.id,//customerId 是客户ID
+        subscriptionId: subscription.id,//subscriptionId 是订阅ID
+        clientSecret: subscription.latest_invoice.payment_intent.client_secret,//clientSecret 是客户端密钥
       }
     };
   } catch (error) {
