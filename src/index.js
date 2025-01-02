@@ -56,7 +56,16 @@ app.use(async (ctx, next) => {
 });
 
 router.get('/', async (ctx) => {
-  ctx.body = 'Hello World';
+  ctx.body = {
+    code:200,
+    message:'success',
+    data:{
+      SUPABASE_URL:process.env.SUPABASE_URL,
+      SUPABASE_ANON_KEY:process.env.SUPABASE_ANON_KEY,
+      STRIPE_SECRET_KEY:process.env.STRIPE_SECRET_KEY,
+      STRIPE_WEBHOOK_SECRET:process.env.STRIPE_WEBHOOK_SECRET
+    }
+  };
 });
 
 // 创建订阅产品和价格的 API
@@ -236,7 +245,7 @@ router.post('/webhook', async (ctx) => {
     const event = stripe.webhooks.constructEvent(
       ctx.request.rawBody, // 原始的请求体，确保使用了中间件保留原始 body
       sig,
-      process.env.SUPABASE_WEBHOOK_SECRET
+      process.env.STRIPE_WEBHOOK_SECRET
     );
 
     if (event.type === 'payment_intent.succeeded') {//payment_intent.succeeded 是支付成功的 Webhook 事件类型
