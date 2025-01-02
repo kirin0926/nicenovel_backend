@@ -42,6 +42,18 @@ const supabase = createClient(supabaseUrl, supabaseKey)
 // 注册路由
 app.use(router.routes()).use(router.allowedMethods());
 
+// 添加错误处理中间件
+app.use(async (ctx, next) => {
+  try {
+    await next();
+  } catch (err) {
+    console.error('Server Error:', err);
+    ctx.status = err.status || 500;
+    ctx.body = {
+      error: process.env.NODE_ENV === 'production' ? 'Internal Server Error' : err.message
+    };
+  }
+});
 
 router.get('/', async (ctx) => {
   ctx.body = 'Hello World';
