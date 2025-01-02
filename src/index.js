@@ -42,6 +42,11 @@ const supabase = createClient(supabaseUrl, supabaseKey)
 // 注册路由
 app.use(router.routes()).use(router.allowedMethods());
 
+
+router.get('/', async (ctx) => {
+  ctx.body = 'Hello World';
+});
+
 // 创建订阅产品和价格的 API
 router.post('/create-subscription-products', async (ctx) => {
   try {
