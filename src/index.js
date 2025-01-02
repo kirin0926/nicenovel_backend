@@ -32,7 +32,7 @@ app.use(bodyParser({
 }));
 
 // 使用您的 Stripe 密钥
-const stripe = Stripe('sk_test_51PBXHTDISTrmdpg8MYsAFYtENOoFKIANKK3uV10en5Y3brlmYgADYT4JTVfZ5gSCtrf7x97fnTZ14VD3G2qm0ThR00TMFcKMnW');
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 // 在现有的导入语句下面添加 Supabase 配置
 const supabaseUrl = process.env.SUPABASE_URL
@@ -256,3 +256,5 @@ const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+module.exports = app.callback()
