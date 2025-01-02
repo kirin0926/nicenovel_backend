@@ -245,7 +245,7 @@ router.post('/webhook', async (ctx) => {
     const event = stripe.webhooks.constructEvent(
       ctx.request.rawBody, // 原始的请求体，确保使用了中间件保留原始 body
       sig,
-      process.env.WEBHOOK_SECRET
+      'whsec_83f7a5ca49aa677264d6f03df4c06d0db31cda0144db5f62e79a7965466a6f99'
     );
 
     if (event.type === 'payment_intent.succeeded') {//payment_intent.succeeded 是支付成功的 Webhook 事件类型
