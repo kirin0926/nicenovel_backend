@@ -63,7 +63,7 @@ router.get('/', async (ctx) => {
       SUPABASE_URL:process.env.SUPABASE_URL,
       SUPABASE_ANON_KEY:process.env.SUPABASE_ANON_KEY,
       STRIPE_SECRET_KEY:process.env.STRIPE_SECRET_KEY,
-      STRIPE_WEBHOOK_SECRET:process.env.STRIPE_WEBHOOK_SECRET
+      WEBHOOK_SECRET:process.env.WEBHOOK_SECRET
     }
   };
 });
