@@ -222,10 +222,26 @@ router.post('/webhook', async (ctx) => {
       'your-webhook-secret-here'
     );
 
-    if (event.type === 'payment_intent.succeeded') {
+    if (event.type === 'payment_intent.succeeded') {//payment_intent.succeeded 是支付成功的 Webhook 事件类型
       const paymentIntent = event.data.object;
       console.log('Payment succeeded:', paymentIntent);
       // 处理支付成功的逻辑
+    }else if(event.type === 'customer.subscription.updated'){
+      const subscription = event.data.object;
+      console.log('Subscription updated:', subscription);
+      // 处理订阅更新的逻辑
+    }else if(event.type === 'customer.subscription.deleted'){
+      const subscription = event.data.object;
+      console.log('Subscription deleted:', subscription);
+      // 处理订阅删除的逻辑
+    }else if(event.type === 'customer.subscription.created'){
+      const subscription = event.data.object;
+      console.log('Subscription created:', subscription);
+      // 处理订阅创建的逻辑
+    }else if(event.type === 'customer.subscription.payment_method_updated'){
+      const subscription = event.data.object;
+      console.log('Subscription payment method updated:', subscription);
+      // 处理订阅支付方法更新的逻辑
     }
 
     ctx.status = 200;
