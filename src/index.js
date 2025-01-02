@@ -182,10 +182,10 @@ router.post('/create-subscription', async (ctx) => {
     const { priceId, email } = ctx.request.body;
     // 验证必需的参数
     if (!priceId || !email) {
-      ctx.status = 400;
       ctx.body = {
         code: 400,
-        message: 'Missing required parameters: priceId or email'
+        message: 'Missing required parameters: priceId or email',
+        data:[]
       };
       return;
     }
@@ -220,10 +220,10 @@ router.post('/create-subscription', async (ctx) => {
     };
   } catch (error) {
     console.error('Error creating subscription:', error);
-    ctx.status = 500;
     ctx.body = {
       code:500,
-      message:error.message
+      message:error.message,
+      data:[]
     };
   }
 });
@@ -236,35 +236,108 @@ router.post('/webhook', async (ctx) => {
     const event = stripe.webhooks.constructEvent(
       ctx.request.rawBody, // 原始的请求体，确保使用了中间件保留原始 body
       sig,
-      'your-webhook-secret-here'
+      process.env.SUPABASE_WEBHOOK_SECRET
     );
 
     if (event.type === 'payment_intent.succeeded') {//payment_intent.succeeded 是支付成功的 Webhook 事件类型
       const paymentIntent = event.data.object;
-      console.log('Payment succeeded:', paymentIntent);
+      // console.log('Payment succeeded:', paymentIntent);
       // 处理支付成功的逻辑
-    }else if(event.type === 'customer.subscription.updated'){
+
+    }
+    else if(event.type === 'customer.subscription.updated'){
       const subscription = event.data.object;
       console.log('Subscription updated:', subscription);
       // 处理订阅更新的逻辑
-    }else if(event.type === 'customer.subscription.deleted'){
+
+    }
+    else if(event.type === 'customer.subscription.deleted'){
       const subscription = event.data.object;
-      console.log('Subscription deleted:', subscription);
-      // 处理订阅删除的逻辑
-    }else if(event.type === 'customer.subscription.created'){
+      console.log('Subscription deleted event received:', subscription.id);
+      
+      try {
+        // 先检查订阅是否存在
+        const { data: existingSubscription, error: checkError } = await supabase
+          .from('subscriptions')
+          .select('*')
+          .eq('stripe_subscription_id', subscription.id)
+          .single();
+
+        if (checkError) {
+          console.error('Error checking subscription:', checkError);
+          ctx.body = { 
+            code:500,
+            message: 'Error checking subscription',
+            data:[]
+          };
+          return;
+        }
+
+        if (!existingSubscription) {
+          console.log('Subscription not found in database:', subscription.id);
+          ctx.body = {
+            code:200,
+            message: 'Subscription not found',
+            data:[]
+          };
+          return;
+        }
+
+        // 执行删除操作
+        const { error: deleteError } = await supabase
+          .from('subscriptions')
+          .delete()
+          .eq('stripe_subscription_id', subscription.id);
+
+        if (deleteError) {
+            console.error('Error deleting subscription:', deleteError);
+            ctx.body = {
+              code:500,
+              message: 'Error deleting subscription',
+              data:[]
+            };
+            return;
+        }
+
+        console.log('Successfully deleted subscription:', subscription.id);
+        ctx.body = { 
+          code:200,
+          message: 'Subscription deleted successfully',
+          data:[]
+        };
+      } catch (error) {
+        console.error('Unexpected error during subscription deletion:', error);
+        ctx.body = {
+          code:500,
+          message: 'Internal server error',
+          data:[]
+        };
+      }
+    }
+    else if(event.type === 'customer.subscription.created'){
       const subscription = event.data.object;
-      console.log('Subscription created:', subscription);
+      // console.log('Subscription created:', subscription);
       // 处理订阅创建的逻辑
-    }else if(event.type === 'customer.subscription.payment_method_updated'){
+
+    }
+    else if(event.type === 'customer.subscription.payment_method_updated'){
       const subscription = event.data.object;
       console.log('Subscription payment method updated:', subscription);
       // 处理订阅支付方法更新的逻辑
     }
 
-    ctx.status = 200;
+    ctx.body = {
+      code:200,
+      message:'success',
+      data:[]
+    };
   } catch (err) {
     console.error('Webhook Error:', err.message);
-    ctx.status = 400;
+    ctx.body = {
+      code:400,
+      message:err.message,
+      data:[]
+    };
   }
 });
 
