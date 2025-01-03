@@ -56,6 +56,11 @@ app.use(async (ctx, next) => {
 });
 
 router.get('/', async (ctx) => {
+  //获取stripe中所有的价格
+  const prices = await stripe.prices.list({
+    product: 'prod_RVr1S6NHzjl8VL',
+    active: true  // 可选：只获取激活的价格
+  });
   ctx.body = {
     code:200,
     message:'success',
@@ -63,7 +68,8 @@ router.get('/', async (ctx) => {
       SUPABASE_URL:process.env.SUPABASE_URL,
       SUPABASE_ANON_KEY:process.env.SUPABASE_ANON_KEY,
       STRIPE_SECRET_KEY:process.env.STRIPE_SECRET_KEY,
-      WEBHOOK_SECRET:process.env.WEBHOOK_SECRET
+      WEBHOOK_SECRET:process.env.WEBHOOK_SECRET,
+      prices:prices
     }
   };
 });
